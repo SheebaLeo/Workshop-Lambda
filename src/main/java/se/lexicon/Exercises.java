@@ -1,6 +1,14 @@
 package se.lexicon;
 
 import se.lexicon.data.DataStorage;
+import se.lexicon.model.Gender;
+import se.lexicon.model.Person;
+
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.Predicate;
 
 public class Exercises {
 
@@ -13,6 +21,8 @@ public class Exercises {
         System.out.println(message);
         //Write your code here
 
+        List<Person> ex1 = storage.findMany(p -> "Erik".equals(p.getFirstName()));
+        System.out.println(ex1);
         System.out.println("----------------------");
     }
 
@@ -23,6 +33,8 @@ public class Exercises {
         System.out.println(message);
         //Write your code here
 
+        List<Person> ex2 = storage.findMany(p -> Gender.FEMALE.equals(p.getGender()));
+        System.out.println(ex2);
         System.out.println("----------------------");
     }
 
@@ -33,6 +45,8 @@ public class Exercises {
         System.out.println(message);
         //Write your code here
 
+        List<Person> ex3 = storage.findMany(p -> !p.getBirthDate().isBefore(LocalDate.of(2000, 1, 1)));
+        System.out.println(ex3);
         System.out.println("----------------------");
     }
 
@@ -43,6 +57,8 @@ public class Exercises {
         System.out.println(message);
         //Write your code here
 
+        Person ex4 = storage.findOne(p -> p.getId() == 123);
+        System.out.println(ex4);
         System.out.println("----------------------");
 
     }
@@ -55,6 +71,9 @@ public class Exercises {
         System.out.println(message);
         //Write your code here
 
+        String ex5 = storage.findOneAndMapToString(p -> p.getId() == 356,
+                p -> String.format("Name: %s %s born %s",p.getFirstName(), p.getLastName(), p.getBirthDate()));
+        System.out.println(ex5);
         System.out.println("----------------------");
     }
 
@@ -65,6 +84,11 @@ public class Exercises {
         System.out.println(message);
         //Write your code here
 
+
+        List<String> ex6 = storage.findManyAndMapEachToString(
+                p -> p.getFirstName().startsWith("E") && Gender.MALE.equals(p.getGender()),
+                p -> String.format("Name: %s %s born %s", p.getFirstName(), p.getLastName(), p.getBirthDate()));
+        System.out.println(ex6);
         System.out.println("----------------------");
     }
 
@@ -76,6 +100,17 @@ public class Exercises {
         System.out.println(message);
         //Write your code here
 
+        List<String> ex7 = storage.findManyAndMapEachToString(
+                p -> {
+                    int age = Period.between(p.getBirthDate(), LocalDate.now()).getYears();
+                    return age < 10;
+                },
+                p-> {
+                    int age = Period.between(p.getBirthDate(), LocalDate.now()).getYears();
+                    return String.format("%s %s %d years", p.getFirstName(), p.getLastName(), age);
+                }
+        );
+        System.out.println(ex7);
         System.out.println("----------------------");
     }
 
@@ -86,6 +121,8 @@ public class Exercises {
         System.out.println(message);
         //Write your code here
 
+        storage.findAndDo(p -> "Ulf".equals(p.getFirstName()),
+                p -> System.out.println(p));
         System.out.println("----------------------");
     }
 
@@ -96,6 +133,8 @@ public class Exercises {
         System.out.println(message);
         //Write your code here
 
+        storage.findAndDo(p -> p.getLastName().contains(p.getFirstName()),
+                p -> System.out.println(p));
         System.out.println("----------------------");
     }
 
@@ -106,6 +145,9 @@ public class Exercises {
         System.out.println(message);
         //Write your code here
 
+        Predicate<String> isPalindrome = s -> s != null && s.equalsIgnoreCase(new StringBuilder(s).reverse().toString());
+        storage.findAndDo(p -> isPalindrome.test(p.getFirstName()),
+                p-> System.out.println(p.getFirstName() + " " + p.getLastName()));
         System.out.println("----------------------");
     }
 
@@ -116,6 +158,9 @@ public class Exercises {
         System.out.println(message);
         //Write your code here
 
+        List<Person> ex11 = storage.findAndSort(p -> p.getFirstName().startsWith("A"),
+                Comparator.comparing(Person :: getBirthDate));
+        System.out.println(ex11);
         System.out.println("----------------------");
     }
 
@@ -126,6 +171,9 @@ public class Exercises {
         System.out.println(message);
         //Write your code here
 
+        List<Person> ex12 = storage.findAndSort(p -> p.getBirthDate().isBefore(LocalDate.of(1950, 1, 1)),
+                Comparator.comparing(Person::getBirthDate).reversed());
+        System.out.println(ex12);
         System.out.println("----------------------");
     }
 
@@ -136,6 +184,11 @@ public class Exercises {
         System.out.println(message);
         //Write your code here
 
+        List<Person> ex13 = storage.findAndSort(
+                Comparator.comparing(Person::getLastName)
+                .thenComparing(Person::getFirstName)
+                .thenComparing(Person::getBirthDate));
+        System.out.println(ex13);
         System.out.println("----------------------");
     }
 }
